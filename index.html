@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>毛孩溫馨家 | 動物認養平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; }
+        .fade-in { animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .bg-warm { background-color: #fffaf0; }
+        .card-hover:hover { transform: translateY(-10px); transition: 0.4s ease; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body class="bg-warm min-h-screen flex flex-col">
+
+    <nav class="bg-white shadow-lg sticky top-0 z-50 p-4 border-b-4 border-orange-200">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <div class="text-3xl font-black text-orange-500 cursor-pointer" onclick="showPage('home')">🐾 毛孩溫馨家</div>
+            <div class="space-x-6 text-lg font-bold">
+                <button onclick="showPage('home')" class="hover:text-orange-500 transition">首頁</button>
+                <button onclick="showPage('volunteer')" class="hover:text-orange-500 transition">志工招募</button>
+                <button onclick="showPage('process')" class="hover:text-orange-500 transition">認養流程</button>
+            </div>
+        </div>
+    </nav>
+
+    <main id="app" class="flex-grow p-6">
+        <!-- 內容動態載入 -->
+    </main>
+
+    <footer class="bg-orange-100 p-10 mt-12 text-center border-t-4 border-orange-200">
+        <h3 class="font-black text-2xl mb-4 text-orange-600">聯絡我們</h3>
+        <p>電話: 02-1234-5678 | Email: contact@petlove.com</p>
+        <p>地址: 台北市毛孩區幸福路 99 號</p>
+    </footer>
+
+    <!-- 聯絡資訊卡彈窗 -->
+    <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl">
+            <h2 id="modal-title" class="text-xl font-black text-orange-500 mb-6">目前正在詢問：</h2>
+            <div class="bg-orange-50 p-4 rounded-xl space-y-2 text-gray-700">
+                <p>📞 電話: 02-1234-5678</p>
+                <p>📧 信箱: service@petlove.com</p>
+                <p>📍 地址: 台北市毛孩區幸福路 99 號</p>
+            </div>
+            <button onclick="document.getElementById('modal').classList.add('hidden')" class="w-full mt-6 bg-orange-400 text-white font-black py-3 rounded-xl hover:bg-orange-500">關閉</button>
+        </div>
+    </div>
+
+    <script>
+        const animals = Array.from({length: 10}, (_, i) => ({
+            id: i, type: 'dog', name: `狗狗 ${i+1}`, breed: '米克斯', age: `${i+1}歲`, gender: '公', 
+            personality: '非常黏人，喜歡玩球！', health: '已結紮，健康良好', images: [`https://placedog.net/500/500?id=${i+1}`, `https://placedog.net/500/500?id=${i+11}`, `https://placedog.net/500/500?id=${i+21}`]
+        })).concat(Array.from({length: 10}, (_, i) => ({
+            id: i+10, type: 'cat', name: `貓咪 ${i+1}`, breed: '橘貓', age: `${i+1}歲`, gender: '母', 
+            personality: '親人乖巧，喜歡討摸。', health: '驅蟲完畢，身體健康', images: [`https://cataas.com/cat?tag=cute&_=${i}`, `https://cataas.com/cat?tag=kitten&_=${i}`, `https://cataas.com/cat?tag=sleep&_=${i}`]
+        })));
+
+        let currentPage = 'home', filter = 'all', searchTerm = '';
+
+        function showPage(page) { currentPage = page; render(); window.scrollTo(0, 0); }
+        
+        function render() {
+            const app = document.getElementById('app');
+            if (currentPage === 'home') {
+                app.innerHTML = `
+                    <div class="text-center mb-12 fade-in">
+                        <h1 class="text-5xl font-black text-orange-500 mb-6">找尋你的靈魂伴侶</h1>
+                        <input type="text" placeholder="搜尋名稱或品種..." oninput="searchTerm=this.value; render()" class="p-4 rounded-full border-4 border-orange-200 w-full max-w-md mb-6 outline-none focus:border-orange-400">
+                        <div class="flex justify-center gap-4">
+                            ${['all', 'dog', 'cat'].map(t => `<button onclick="filter='${t}'; render()" class="px-8 py-3 rounded-full font-black ${filter===t?'bg-orange-500 text-white':'bg-white'} border-2 border-orange-500">${t==='all'?'全部':t==='dog'?'狗狗':'貓咪'}</button>`).join('')}
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-4 gap-6">
+                        ${animals.filter(a => (filter === 'all' || a.type === filter) && (a.name.includes(searchTerm) || a.breed.includes(searchTerm))).map(a => `
+                            <div class="bg-white p-4 rounded-3xl shadow-xl border-2 border-orange-100 card-hover">
+                                <img src="${a.images[0]}" class="h-48 w-full object-cover rounded-2xl mb-4">
+                                <h3 class="text-2xl font-black">${a.name}</h3>
+                                <p class="text-gray-500">${a.breed} | ${a.age}</p>
+                                <button onclick="document.getElementById('modal-title').innerText='目前正在詢問：${a.name}'; document.getElementById('modal').classList.remove('hidden')" class="w-full mt-4 bg-orange-400 text-white py-3 rounded-xl font-bold">我想認養</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="mt-20 p-10 bg-white rounded-[3rem] border-4 border-orange-200 text-center">
+                        <h2 class="text-3xl font-black mb-8 text-orange-600">認養前準備評估</h2>
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="p-6 bg-orange-50 rounded-2xl">✅ 居家環境是否安全舒適</div>
+                            <div class="p-6 bg-orange-50 rounded-2xl">✅ 是否有充足時間陪伴</div>
+                            <div class="p-6 bg-orange-50 rounded-2xl">✅ 經濟預算能否負擔開銷</div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentPage === 'volunteer') {
+                app.innerHTML = `
+                    <div class="max-w-4xl mx-auto py-16 fade-in text-center">
+                        <h1 class="text-6xl font-black text-orange-500 mb-8">志工招募</h1>
+                        <p class="text-2xl text-gray-700 mb-12">我們需要熱血的你！加入我們，與毛孩一起創造幸福回憶。</p>
+                        <div class="grid md:grid-cols-3 gap-8">
+                            <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-orange-100 card-hover">
+                                <div class="text-6xl mb-4">🧹</div>
+                                <h3 class="text-2xl font-black">環境維護</h3>
+                                <p class="text-gray-600 mt-2">協助整理毛孩家園，讓牠們住得舒適。</p>
+                            </div>
+                            <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-orange-100 card-hover">
+                                <div class="text-6xl mb-4">🐕</div>
+                                <h3 class="text-2xl font-black">陪伴散步</h3>
+                                <p class="text-gray-600 mt-2">給狗狗與你交流的溫馨時光。</p>
+                            </div>
+                            <div class="bg-white p-8 rounded-3xl shadow-xl border-4 border-orange-100 card-hover">
+                                <div class="text-6xl mb-4">📱</div>
+                                <h3 class="text-2xl font-black">社群推廣</h3>
+                                <p class="text-gray-600 mt-2">透過鏡頭，讓毛孩的可愛被看見。</p>
+                            </div>
+                        </div>
+                    </div>`;
+            } else if (currentPage === 'process') {
+                app.innerHTML = `
+                    <div class="max-w-4xl mx-auto py-16 fade-in">
+                        <h1 class="text-5xl font-black text-center text-orange-500 mb-16">認養流程</h1>
+                        <div class="space-y-8">
+                            ${[ {n:1, t:'瀏覽媒合', d:'尋找您的緣分毛孩', i:'🔍'}, {n:2, t:'聯絡諮詢', d:'詢問狀況與評估', i:'📞'}, {n:3, t:'面談互動', d:'親臨現場互動', i:'🤝'}, {n:4, t:'接回毛孩', d:'迎接幸福新成員', i:'🏠'} ].map(s => `
+                            <div class="flex items-center gap-8 bg-white p-8 rounded-3xl shadow-lg border-2 border-orange-100 card-hover">
+                                <div class="w-16 h-16 bg-orange-500 text-white rounded-full flex items-center justify-center font-black text-2xl">${s.n}</div>
+                                <div class="text-4xl">${s.i}</div>
+                                <div><h3 class="text-2xl font-black">${s.t}</h3><p class="text-gray-600">${s.d}</p></div>
+                            </div>`).join('')}
+                        </div>
+                    </div>`;
+            }
+        }
+        render();
+    </script>
+</body>
+</html>
